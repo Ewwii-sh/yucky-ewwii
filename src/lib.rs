@@ -26,7 +26,6 @@ auto_plugin!(
                             .collect();
 
                         let tree = convert::convert_to_widgetnode(top_levels)?;
-
                         Ok(tree)
                     }
                     Err(e) => {

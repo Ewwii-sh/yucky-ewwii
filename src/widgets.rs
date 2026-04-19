@@ -97,7 +97,6 @@ fn basic_widget_to_node(
                         })
                         .collect(),
                 };
-                println!("NEW CTX {:#?}", &new_ctx);
                 widget_use_to_node(&def.widget, &new_ctx)
             } else {
                 Err(format!("Unknown widget: {}", other))
