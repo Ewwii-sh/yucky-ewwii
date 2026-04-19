@@ -15,6 +15,24 @@ use eww_shared_util::{VarName, Span};
 const BOX_NAME: &str = "box";
 const LABEL_NAME: &str = "label";
 const BUTTON_NAME: &str = "button";
+const IMAGE_NAME: &str = "image";
+const INPUT_NAME: &str = "input";
+const PROGRESS_NAME: &str = "progress";
+const COMBOBOXTEXT_NAME: &str = "combo-box-text";
+const SCALE_NAME: &str = "scale";
+const CHECKBOX_NAME: &str = "checkbox";
+const EXPANDER_NAME: &str = "expander";
+const REVEALER_NAME: &str = "revealer";
+const SCROLL_NAME: &str = "scroll";
+const OVERLAY_NAME: &str = "overlay";
+const STACK_NAME: &str = "stack";
+const COLORBUTTON_NAME: &str = "color-button";
+const COLORCHOOSER_NAME: &str = "color-chooser";
+const CIRCULARPROGRESS_NAME: &str = "circular-progress";
+const GRAPH_NAME: &str = "graph";
+const TRANSFORM_NAME: &str = "transform";
+const EVENTBOX_NAME: &str = "eventbox";
+const TOOLTIP_NAME: &str = "tooltip";
 
 pub fn widget_use_to_node(
     widget_use: &WidgetUse, 
@@ -42,9 +60,27 @@ fn basic_widget_to_node(
         .collect::<Result<Vec<_>, _>>()?;
 
     match basic.name.as_str() {
-        BOX_NAME => Ok(WidgetNode::Box { props, children }),
         LABEL_NAME => Ok(WidgetNode::Label { props }),
         BUTTON_NAME => Ok(WidgetNode::Button { props }),
+        BOX_NAME => Ok(WidgetNode::Box { props, children }),
+        IMAGE_NAME => Ok(WidgetNode::Image { props }),
+        INPUT_NAME => Ok(WidgetNode::Input { props }),
+        PROGRESS_NAME => Ok(WidgetNode::Progress { props }),
+        COMBOBOXTEXT_NAME => Ok(WidgetNode::ComboBoxText { props }),
+        SCALE_NAME => Ok(WidgetNode::Scale { props }),
+        CHECKBOX_NAME => Ok(WidgetNode::Checkbox { props }),
+        EXPANDER_NAME => Ok(WidgetNode::Expander { props, children }),
+        REVEALER_NAME => Ok(WidgetNode::Revealer { props, children }),
+        SCROLL_NAME => Ok(WidgetNode::Scroll { props, children }),
+        OVERLAY_NAME => Ok(WidgetNode::OverLay { props, children }),
+        STACK_NAME => Ok(WidgetNode::Stack { props, children }),
+        COLORBUTTON_NAME => Ok(WidgetNode::ColorButton { props }),
+        COLORCHOOSER_NAME => Ok(WidgetNode::ColorChooser { props }),
+        CIRCULARPROGRESS_NAME => Ok(WidgetNode::CircularProgress { props }),
+        GRAPH_NAME => Ok(WidgetNode::Graph { props }),
+        TRANSFORM_NAME => Ok(WidgetNode::Transform { props }),
+        EVENTBOX_NAME => Ok(WidgetNode::EventBox { props, children }),
+        TOOLTIP_NAME => Ok(WidgetNode::ToolTip { props, children }),
         other => {
             if let Some(def) = ctx.defs.get(other) {
                 let new_ctx = ConvertContext {

@@ -27,8 +27,6 @@ auto_plugin!(
 
                         let tree = convert::convert_to_widgetnode(top_levels)?;
 
-                        println!("TREE: {:#?}", tree);
-
                         Ok(tree)
                     }
                     Err(e) => {
