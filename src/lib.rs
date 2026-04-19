@@ -22,8 +22,9 @@ auto_plugin!(
                     Ok((_span, ast_nodes)) => {
                         let top_levels: Vec<TopLevel> = ast_nodes
                             .into_iter()
-                            .map(|ast| TopLevel::from_ast(ast).expect("Invalid yuck syntax"))
-                            .collect();
+                            .map(|ast| TopLevel::from_ast(ast)
+                            .map_err(|e| e.to_string()))
+                            .collect::<Result<Vec<_>, _>>()?;
 
                         let tree = convert::convert_to_widgetnode(top_levels)?;
                         Ok(tree)
