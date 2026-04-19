@@ -1,0 +1,11 @@
+[package]
+name = "yucky-ewwii"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"] 
+
+[dependencies]
+ewwii_plugin_api = { version = "1.0.0", path = "../ewwii/crates/plugin_api" }
+yuck = { git = "https://github.com/elkowar/eww", branch = "master", version = "0.1.0" }
