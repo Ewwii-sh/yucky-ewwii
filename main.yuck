@@ -1,6 +1,8 @@
+(defvar my_variable "hehe")
+
 (defwidget my_bar [arg1]
   (box :orientation "h"
-    (label :text arg1)))
+    (label :text my_variable)))
 
 (defwindow top_bar
   :monitor 0

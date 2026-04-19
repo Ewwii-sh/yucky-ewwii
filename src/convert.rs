@@ -7,6 +7,7 @@ use yuck::config::{
 use yuck::parser::from_ast::FromAst;
 use ewwii_plugin_api::shared_utils::ast::WidgetNode;
 use ewwii_plugin_api::shared_utils::prop::{PropertyMap, Property};
+use ewwii_plugin_api::shared_utils::variables::GlobalVar;
 use std::collections::HashMap;
 use crate::widgets;
 use std::fs;
@@ -15,10 +16,12 @@ use std::fs;
 pub struct ConvertContext<'a> {
     pub defs: &'a HashMap<String, WidgetDefinition>,
     pub args: HashMap<String, String>,
+    pub vars: &'a Vec<GlobalVar>,
 }
 
 pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, String> {
     let mut tree: Vec<WidgetNode> = Vec::new();
+    let mut global_var_defs: Vec<GlobalVar> = Vec::new();
     let mut widget_defs: HashMap<String, WidgetDefinition> = HashMap::new();
 
     for top_level in top_levels {
@@ -46,7 +49,13 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                     }
                 }
             }
-            TopLevel::VarDefinition(var_def) => {}
+            TopLevel::VarDefinition(var_def) => {
+                let global_var = GlobalVar {
+                    name: var_def.name.0,
+                    initial: Property::String(var_def.initial_value.0)
+                };
+                global_var_defs.push(global_var);
+            }
             TopLevel::ScriptVarDefinition(script_var_def) => {
                 match script_var_def {
                     ScriptVarDefinition::Poll(poll) => {
@@ -55,25 +64,44 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                         props.insert("interval", Property::String(
                             format!("{}ms", poll.interval.as_millis())
                         ));
-                        if let Some(dynval) = poll.initial_value {
-                            props.insert("initial", Property::String(dynval.0));
-                        }
+
+                        let initial = match poll.initial_value {
+                            Some(i) => Property::String(i.to_string()),
+                            None => Property::String(String::new())
+                        };
+
+                        props.insert("initial", initial.clone());
+
+                        let global_var = GlobalVar {
+                            name: poll.name.to_string(),
+                            initial,
+                        };
 
                         tree.push(WidgetNode::Poll {
                             var: poll.name.to_string(),
                             props,
                         });
+
+                        global_var_defs.push(global_var);
                     }
                     ScriptVarDefinition::Listen(listen) => {
                         let mut props = PropertyMap::new();
 
                         // props.insert("cmd", Property::String());
-                        props.insert("initial", Property::String(listen.initial_value.0));
+                        let initial = listen.initial_value.0;
+                        props.insert("initial", Property::String(initial.clone()));
+
+                        let global_var = GlobalVar {
+                            name: listen.name.to_string(),
+                            initial: Property::String(initial),
+                        };
 
                         tree.push(WidgetNode::Listen {
                             var: listen.name.to_string(),
                             props,
                         });
+
+                        global_var_defs.push(global_var);
                     }
                 }
             }
@@ -84,6 +112,7 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                 let ctx = ConvertContext {
                     defs: &widget_defs,
                     args: HashMap::new(),
+                    vars: &global_var_defs,
                 };
                 let node = widgets::widget_use_to_node(&window_def.widget, &ctx)?;
 

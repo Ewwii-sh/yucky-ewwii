@@ -1,7 +1,8 @@
 use crate::convert::ConvertContext;
 use ewwii_plugin_api::shared_utils::{
     prop::{PropertyMap, Property}, 
-    ast::WidgetNode
+    ast::WidgetNode,
+    variables::GlobalVar,
 };
 use yuck::config::attributes::Attributes;
 use yuck::config::widget_definition::WidgetDefinition;
@@ -53,7 +54,7 @@ fn basic_widget_to_node(
     basic: &BasicWidgetUse,
     ctx: &ConvertContext,
 ) -> Result<WidgetNode, String> {
-    let props = extract_props(&basic.attrs, &ctx.args);
+    let props = extract_props(&basic.attrs, &ctx.args, &ctx.vars);
     let children = basic.children
         .iter()
         .map(|child| widget_use_to_node(child, ctx))
@@ -89,13 +90,33 @@ fn basic_widget_to_node(
                         .iter()
                         .map(|(k, v)| {
                             let val = match &v.value {
-                                Ast::SimplExpr(_, expr) => resolve_simpl_expr(expr, &ctx.args),
-                                Ast::Symbol(_, s) => ctx.args.get(s).cloned().unwrap_or(s.clone()),
+                                Ast::SimplExpr(_, expr) => {
+                                    match resolve_simpl_expr(expr, &ctx.args, &ctx.vars) {
+                                        Property::String(s) => s,
+                                        Property::Int(i) => i.to_string(),
+                                        Property::Float(f) => f.to_string(),
+                                        Property::Bool(b) => b.to_string(),
+                                        _ => format!("{}", v.value).trim_matches('"').to_string(),
+                                    }
+                                }
+                                Ast::Symbol(_, s) => {
+                                    if let Some(val) = ctx.args.get(s) {
+                                        val.clone()
+                                    } else if let Some(global) = ctx.vars.iter().find(|v| &v.name == s) {
+                                        match &global.initial {
+                                            Property::String(s) => s.clone(),
+                                            _ => String::new(),
+                                        }
+                                    } else {
+                                        s.clone()
+                                    }
+                                }
                                 _ => format!("{}", v.value).trim_matches('"').to_string(),
                             };
                             (k.0.clone(), val)
                         })
                         .collect(),
+                    vars: ctx.vars,
                 };
                 widget_use_to_node(&def.widget, &new_ctx)
             } else {
@@ -105,32 +126,59 @@ fn basic_widget_to_node(
     }
 }
 
-fn resolve_simpl_expr(expr: &SimplExpr, args: &HashMap<String, String>) -> String {
+fn resolve_simpl_expr(
+    expr: &SimplExpr,
+    args: &HashMap<String, String>,
+    vars: &Vec<GlobalVar>,
+) -> Property {
     let var_map: HashMap<VarName, DynVal> = args
         .iter()
         .map(|(k, v)| (VarName(k.clone()), DynVal(v.clone(), Span::DUMMY)))
         .collect();
 
     match expr.eval(&var_map) {
-        Ok(DynVal(s, _)) => s,
+        Ok(DynVal(s, _)) => Property::String(s),
         Err(_) => {
-            // has unresolved refs (defvar/defpoll) — keep as-is for renderer
-            format!("{}", expr)
+            let var_refs = expr.collect_var_refs();
+            if var_refs.len() == 1 && matches!(expr, SimplExpr::VarRef(..)) {
+                let var_name = &var_refs[0].0;
+                if let Some(global) = vars.iter().find(|v| &v.name == var_name) {
+                    Property::GlobalVar(Box::new(global.clone()))
+                } else {
+                    Property::String(format!("{}", expr))
+                }
+            } else {
+                Property::String(format!("{}", expr))
+            }
         }
     }
 }
 
-fn extract_props(attrs: &Attributes, args: &HashMap<String, String>) -> PropertyMap {
+fn extract_props(
+    attrs: &Attributes,
+    args: &HashMap<String, String>,
+    vars: &Vec<GlobalVar>,
+) -> PropertyMap {
     let mut map = PropertyMap::new();
     for (key, attr) in &attrs.attrs {
-        let val = match &attr.value {
-            Ast::SimplExpr(_, expr) => resolve_simpl_expr(expr, args),
+        let prop = match &attr.value {
+            Ast::SimplExpr(_, expr) => resolve_simpl_expr(expr, args, vars),
             Ast::Symbol(_, s) => {
-                args.get(s).cloned().unwrap_or(s.clone())
+                // check widget args first
+                if let Some(val) = args.get(s) {
+                    Property::String(val.clone())
+                // then check global vars
+                } else if let Some(global) = vars.iter().find(|v| &v.name == s) {
+                    Property::GlobalVar(Box::new(global.clone()))
+                } else {
+                    Property::String(s.clone())
+                }
             }
-            _ => format!("{}", attr.value).trim_matches('"').to_string(),
+            _ => Property::String(
+                format!("{}", attr.value).trim_matches('"').to_string()
+            ),
         };
-        map.insert(key.0.clone(), val.into());
+        map.insert(key.0.clone(), prop);
     }
     map
 }
