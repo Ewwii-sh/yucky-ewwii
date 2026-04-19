@@ -1,9 +1,0 @@
-(defwidget my_bar [arg1]
-  (box :orientation "h"
-    (label :text arg1)))
-
-;; This is what triggers the DefWindow variant in your code
-(defwindow top_bar
-  :monitor 0
-  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "30px")
-  (my_bar :arg1 "Hello World"))

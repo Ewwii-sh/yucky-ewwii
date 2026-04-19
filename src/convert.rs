@@ -7,10 +7,19 @@ use yuck::config::{
 use yuck::parser::from_ast::FromAst;
 use ewwii_plugin_api::shared_utils::ast::WidgetNode;
 use ewwii_plugin_api::shared_utils::prop::{PropertyMap, Property};
+use std::collections::HashMap;
+use crate::widgets;
 use std::fs;
+
+#[derive(Debug)]
+pub struct ConvertContext<'a> {
+    pub defs: &'a HashMap<String, WidgetDefinition>,
+    pub args: HashMap<String, String>,
+}
 
 pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, String> {
     let mut tree: Vec<WidgetNode> = Vec::new();
+    let mut widget_defs: HashMap<String, WidgetDefinition> = HashMap::new();
 
     for top_level in top_levels {
         match top_level {
@@ -68,10 +77,24 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                     }
                 }
             }
-            TopLevel::WidgetDefinition(widget_def) => {}
-            TopLevel::WindowDefinition(window_def) => {}
+            TopLevel::WidgetDefinition(widget_def) => {
+                widget_defs.insert(widget_def.name.clone(), widget_def);
+            }
+            TopLevel::WindowDefinition(window_def) => {
+                let ctx = ConvertContext {
+                    defs: &widget_defs,
+                    args: HashMap::new(),
+                };
+                let node = widgets::widget_use_to_node(&window_def.widget, &ctx)?;
+
+                tree.push(WidgetNode::DefWindow {
+                    name: window_def.name,
+                    props: PropertyMap::new(),
+                    node: Box::new(node),
+                });
+            }
         }
     }
 
-    Ok(WidgetNode::Tree(vec![]))
+    Ok(WidgetNode::Tree(tree))
 }

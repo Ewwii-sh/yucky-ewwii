@@ -1,4 +1,5 @@
 mod convert;
+mod widgets;
 
 use ewwii_plugin_api::{auto_plugin, PluginInfo, ConfigInfo, ParseFn, ParseFnExt};
 use ewwii_plugin_api::shared_utils::ast::WidgetNode;
@@ -14,7 +15,7 @@ auto_plugin!(
         host.register_config_engine(
             ConfigInfo {
                 extension: "yuck",
-                main_file: "eww.yuck",
+                main_file: "main.yuck",
             },
             ParseFn::new(|source, path| {
                 match yuck::parser::parse_toplevel(0, source.to_string()) {
@@ -31,7 +32,6 @@ auto_plugin!(
                         Ok(tree)
                     }
                     Err(e) => {
-                        // e is a yuck::error::AstError
                         eprintln!("Parsing error: {}", e);
                         Err(format!("Failed to parse yuck: {}", e))
                     }

@@ -9,3 +9,5 @@ crate-type = ["cdylib"]
 [dependencies]
 ewwii_plugin_api = { version = "1.0.0", path = "../ewwii/crates/plugin_api" }
 yuck = { git = "https://github.com/elkowar/eww", branch = "master", version = "0.1.0" }
+simplexpr = { git = "https://github.com/elkowar/eww", branch = "master", version = "0.1.0" }
+eww_shared_util = { git = "https://github.com/elkowar/eww", branch = "master", version = "0.1.0" }

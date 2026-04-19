@@ -1746,7 +1746,9 @@ dependencies = [
 name = "yucky-ewwii"
 version = "0.1.0"
 dependencies = [
+ "eww_shared_util",
  "ewwii_plugin_api",
+ "simplexpr",
  "yuck",
 ]
 
