@@ -1,8 +1,10 @@
 use yuck::config::{
-    TopLevel, Include, var_definition::VarDefinition,
-    script_var_definition::{ScriptVarDefinition, PollScriptVar, ListenScriptVar},
+    TopLevel,
+    script_var_definition::{
+        ScriptVarDefinition, 
+        VarSource,
+    },
     widget_definition::WidgetDefinition,
-    window_definition::WindowDefinition,
 };
 use yuck::parser::from_ast::FromAst;
 use ewwii_plugin_api::shared_utils::ast::WidgetNode;
@@ -34,8 +36,12 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                     Ok((_span, ast_nodes)) => {
                         let top_levels: Vec<TopLevel> = ast_nodes
                             .into_iter()
-                            .map(|ast| TopLevel::from_ast(ast).expect("Invalid yuck syntax"))
-                            .collect();
+                            .map(|ast| TopLevel::from_ast(ast)
+                            .map_err(|e| {
+                                errors::report_diag_error(source, path, &e);
+                                e.to_string()
+                            }))
+                            .collect::<Result<Vec<_>, _>>()?;
 
                         let result = convert_to_widgetnode(top_levels)?;
 
@@ -44,8 +50,8 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                         }
                     }
                     Err(e) => {
-                        eprintln!("Parsing error: {}", e);
-                        return Err(format!("Failed to parse yuck: {}", e))
+                        // errors::report_parse_error(source, path, &e);
+                        Err(format!("Failed to parse yuck: {}", e))
                     }
                 }
             }
@@ -72,7 +78,16 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                 match script_var_def {
                     ScriptVarDefinition::Poll(poll) => {
                         let mut props = PropertyMap::new();
-                        // props.insert("cmd", Property::String());
+
+                        let cmd = match &poll.command {
+                            VarSource::Shell(_, cmd_str) => Property::String(cmd_str.clone()),
+                            VarSource::Function(_) => {
+                                eprintln!("[yuck] Function-based poll '{}' is not supported, skipping cmd", poll.name);
+                                Property::None
+                            }
+                        };
+
+                        props.insert("cmd", cmd);
                         props.insert("interval", Property::String(
                             format!("{}ms", poll.interval.as_millis())
                         ));
@@ -100,7 +115,7 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                     ScriptVarDefinition::Listen(listen) => {
                         let mut props = PropertyMap::new();
 
-                        // props.insert("cmd", Property::String());
+                        props.insert("cmd", Property::String(listen.command));
                         let initial = listen.initial_value.0;
                         props.insert("initial", Property::String(initial.clone()));
 

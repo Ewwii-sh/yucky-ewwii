@@ -6,7 +6,6 @@ use ewwii_plugin_api::shared_utils::{
     template::{TemplateExpr, TemplateOp},
 };
 use yuck::config::attributes::Attributes;
-use yuck::config::widget_definition::WidgetDefinition;
 use yuck::config::widget_use::{WidgetUse, BasicWidgetUse};
 use yuck::parser::ast::Ast;
 use std::collections::HashMap;
