@@ -51,10 +51,22 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
             }
             TopLevel::VarDefinition(var_def) => {
                 let global_var = GlobalVar {
-                    name: var_def.name.0,
-                    initial: Property::String(var_def.initial_value.0)
+                    name: var_def.name.0.clone(),
+                    initial: Property::String(var_def.initial_value.0.clone()),
+                    template: None,
                 };
                 global_var_defs.push(global_var);
+
+                let mut props = PropertyMap::new();
+                props.insert(
+                    "cmd", 
+                    Property::String(format!("echo '{}'", var_def.initial_value.0))
+                );
+
+                tree.push(WidgetNode::Listen {
+                    var: var_def.name.0,
+                    props,
+                });
             }
             TopLevel::ScriptVarDefinition(script_var_def) => {
                 match script_var_def {
@@ -75,6 +87,7 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                         let global_var = GlobalVar {
                             name: poll.name.to_string(),
                             initial,
+                            template: None,
                         };
 
                         tree.push(WidgetNode::Poll {
@@ -94,6 +107,7 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                         let global_var = GlobalVar {
                             name: listen.name.to_string(),
                             initial: Property::String(initial),
+                            template: None,
                         };
 
                         tree.push(WidgetNode::Listen {

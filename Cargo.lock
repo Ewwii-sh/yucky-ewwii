@@ -440,6 +440,7 @@ dependencies = [
  "anyhow",
  "log",
  "rand",
+ "regex",
  "rhai",
  "serde",
  "tokio",
