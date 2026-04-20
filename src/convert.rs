@@ -11,7 +11,7 @@ use ewwii_plugin_api::shared_utils::ast::WidgetNode;
 use ewwii_plugin_api::shared_utils::prop::{PropertyMap, Property};
 use ewwii_plugin_api::shared_utils::variables::GlobalVar;
 use std::collections::HashMap;
-use crate::widgets;
+use crate::{widgets, errors};
 use std::fs;
 
 #[derive(Debug)]
@@ -29,16 +29,16 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
     for top_level in top_levels {
         match top_level {
             TopLevel::Include(inc) => {
-                let source = fs::read_to_string(inc.path)
+                let source = fs::read_to_string(&inc.path)
                     .expect("Should have been able to read the file");
 
-                match yuck::parser::parse_toplevel(0, source) {
+                match yuck::parser::parse_toplevel(0, source.clone()) {
                     Ok((_span, ast_nodes)) => {
                         let top_levels: Vec<TopLevel> = ast_nodes
                             .into_iter()
                             .map(|ast| TopLevel::from_ast(ast)
                             .map_err(|e| {
-                                errors::report_diag_error(source, path, &e);
+                                errors::report_diag_error(&source, &inc.path, &e);
                                 e.to_string()
                             }))
                             .collect::<Result<Vec<_>, _>>()?;
@@ -50,8 +50,8 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                         }
                     }
                     Err(e) => {
-                        // errors::report_parse_error(source, path, &e);
-                        Err(format!("Failed to parse yuck: {}", e))
+                        errors::report_parse_error(&source, &inc.path, &e);
+                        return Err(format!("Failed to parse yuck: {}", e))
                     }
                 }
             }
@@ -144,10 +144,11 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                     vars: &global_var_defs,
                 };
                 let node = widgets::widget_use_to_node(&window_def.widget, &ctx)?;
+                let props = widgets::window_def_to_props(&window_def, &global_var_defs);
 
                 tree.push(WidgetNode::DefWindow {
                     name: window_def.name,
-                    props: PropertyMap::new(),
+                    props,
                     node: Box::new(node),
                 });
             }

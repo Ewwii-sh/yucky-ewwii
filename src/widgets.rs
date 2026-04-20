@@ -7,6 +7,7 @@ use ewwii_plugin_api::shared_utils::{
 };
 use yuck::config::attributes::Attributes;
 use yuck::config::widget_use::{WidgetUse, BasicWidgetUse};
+use yuck::config::window_definition::WindowDefinition;
 use yuck::parser::ast::Ast;
 use std::collections::HashMap;
 use simplexpr::dynval::DynVal;
@@ -236,4 +237,100 @@ fn extract_props(
         map.insert(key.0.clone(), prop);
     }
     map
+}
+
+fn resolve_as_bool(expr: &SimplExpr, args: &HashMap<String, String>, vars: &Vec<GlobalVar>) -> Property {
+    match resolve_simpl_expr(expr, args, vars) {
+        Property::String(s) => match s.as_str() {
+            "true" => Property::Bool(true),
+            "false" => Property::Bool(false),
+            _ => Property::String(s),
+        },
+        other => other,
+    }
+}
+
+
+fn resolve_as_int(expr: &SimplExpr, args: &HashMap<String, String>, vars: &Vec<GlobalVar>) -> Property {
+    match resolve_simpl_expr(expr, args, vars) {
+        Property::String(s) => s.parse::<i64>()
+            .map(Property::Int)
+            .unwrap_or(Property::String(s)),
+        other => other,
+    }
+}
+
+pub fn window_def_to_props(window_def: &WindowDefinition, vars: &Vec<GlobalVar>) -> PropertyMap {
+    let args: HashMap<String, String> = HashMap::new();
+    let mut props = PropertyMap::new();
+
+    // monitor
+    if let Some(expr) = &window_def.monitor {
+        props.insert("monitor".to_string(), resolve_as_int(expr, &args, vars));
+    }
+
+    // stacking
+    if let Some(expr) = &window_def.stacking {
+        props.insert("stacking".to_string(), resolve_simpl_expr(expr, &args, vars));
+    }
+
+    // resizable
+    if let Some(expr) = &window_def.resizable {
+        props.insert("resizable".to_string(), resolve_as_bool(expr, &args, vars));
+    }
+
+    // x11 backend options
+    let x11 = &window_def.backend_options.x11;
+    if let Some(expr) = &x11.sticky {
+        props.insert("sticky".to_string(), resolve_as_bool(expr, &args, vars));
+    }
+    if let Some(expr) = &x11.wm_ignore {
+        props.insert("wm_ignore".to_string(), resolve_as_bool(expr, &args, vars));
+    }
+    if let Some(expr) = &x11.window_type {
+        props.insert("windowtype".to_string(), resolve_simpl_expr(expr, &args, vars));
+    }
+    if let Some(struts) = &x11.struts {
+        let mut reserve = PropertyMap::new();
+        if let Some(side) = &struts.side {
+            reserve.insert("side".to_string(), resolve_simpl_expr(side, &args, vars));
+        }
+        reserve.insert("distance".to_string(), resolve_simpl_expr(&struts.distance, &args, vars));
+        props.insert("reserve".to_string(), Property::Map(reserve));
+    }
+
+    // wayland backend options
+    let wl = &window_def.backend_options.wayland;
+    if let Some(expr) = &wl.exclusive {
+        props.insert("exclusive".to_string(), resolve_as_bool(expr, &args, vars));
+    }
+    if let Some(expr) = &wl.focusable {
+        props.insert("focusable".to_string(), resolve_simpl_expr(expr, &args, vars));
+    }
+    if let Some(expr) = &wl.namespace {
+        props.insert("namespace".to_string(), resolve_simpl_expr(expr, &args, vars));
+    }
+
+    // geometry
+    if let Some(geo) = &window_def.geometry {
+        let mut geometry = PropertyMap::new();
+        if let Some(expr) = &geo.offset.x {
+            geometry.insert("x".to_string(), resolve_simpl_expr(expr, &args, vars));
+        }
+        if let Some(expr) = &geo.offset.y {
+            geometry.insert("y".to_string(), resolve_simpl_expr(expr, &args, vars));
+        }
+        if let Some(expr) = &geo.size.x {
+            geometry.insert("width".to_string(), resolve_simpl_expr(expr, &args, vars));
+        }
+        if let Some(expr) = &geo.size.y {
+            geometry.insert("height".to_string(), resolve_simpl_expr(expr, &args, vars));
+        }
+        if let Some(expr) = &geo.anchor_point {
+            geometry.insert("anchor".to_string(), resolve_simpl_expr(expr, &args, vars));
+        }
+        props.insert("geometry".to_string(), Property::Map(geometry));
+    }
+
+    props
 }
