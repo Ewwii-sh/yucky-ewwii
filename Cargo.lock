@@ -1772,6 +1772,7 @@ dependencies = [
  "ariadne",
  "eww_shared_util",
  "ewwii_plugin_api",
+ "heck",
  "simplexpr",
  "yuck",
 ]

@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use simplexpr::dynval::DynVal;
 use simplexpr::ast::{SimplExpr, BinOp};
 use eww_shared_util::{VarName, Span};
+use heck::ToSnakeCase;
 
 const BOX_NAME: &str = "box";
 const LABEL_NAME: &str = "label";
@@ -234,7 +235,8 @@ fn extract_props(
                 format!("{}", attr.value).trim_matches('"').to_string()
             ),
         };
-        map.insert(key.0.clone(), prop);
+        let snake_key = key.0.to_snake_case();
+        map.insert(snake_key, prop);
     }
     map
 }

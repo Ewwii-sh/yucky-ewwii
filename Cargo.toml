@@ -14,3 +14,4 @@ eww_shared_util = { git = "https://github.com/elkowar/eww", branch = "master", v
 
 # reporting errors
 ariadne = "0.6.0"
+heck = "0.5.0"
