@@ -1,0 +1,34 @@
+name: Build and deploy Github pages
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - ".github/workflows/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build mdBook
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - uses: actions/checkout@master
+
+      # Build & deploy
+      - name: build mdBook page
+        uses: peaceiris/actions-mdbook@v1
+        with:
+          mdbook-version: "0.4.52"
+      - run: mdbook build docs
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/book/

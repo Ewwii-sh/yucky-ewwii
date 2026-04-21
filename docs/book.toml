@@ -1,0 +1,13 @@
+[book]
+authors = ["Byson94"]
+language = "en"
+src = "src"
+title = "Yucky Ewwii documentation"
+
+[output.html]
+default-theme = "latte"
+preferred-dark-theme = "ewwii"
+site-url = "/yucky-ewwii/"
+git-repository-url = "https://github.com/Ewwii-sh/yucky-ewwii/"
+additional-js = ["js/home_button.js"]
+additional-css = ["./theme/catppuccin.css", "./theme/ewwii.css"]
