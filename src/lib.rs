@@ -1,6 +1,7 @@
 mod convert;
 mod widgets;
 mod errors;
+mod simplexpr;
 
 use ewwii_plugin_api::{auto_plugin, PluginInfo, ConfigInfo, ParseFn, ParseFnExt};
 use yuck::config::TopLevel;
