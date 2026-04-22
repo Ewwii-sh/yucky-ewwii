@@ -15,9 +15,15 @@ use crate::{widgets, errors};
 use std::fs;
 
 #[derive(Debug)]
+pub enum WidgetArgs {
+    String(String),
+    GlobalVar(GlobalVar),
+}
+
+#[derive(Debug)]
 pub struct ConvertContext<'a> {
     pub defs: &'a HashMap<String, WidgetDefinition>,
-    pub args: HashMap<String, String>,
+    pub args: HashMap<String, WidgetArgs>,
     pub vars: &'a Vec<GlobalVar>,
 }
 
