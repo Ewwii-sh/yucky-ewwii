@@ -1,21 +1,21 @@
 use crate::convert::WidgetArgs;
+use eww_shared_util::{Span, VarName};
 use ewwii_plugin_api::shared_utils::{
-    template::{TemplateExpr, TemplateOp},
     prop::Property,
+    template::{TemplateExpr, TemplateOp},
     variables::GlobalVar,
 };
-use eww_shared_util::{VarName, Span};
+use simplexpr::ast::{BinOp, SimplExpr};
 use simplexpr::dynval::DynVal;
-use simplexpr::ast::{SimplExpr, BinOp};
 use std::collections::HashMap;
 
 pub fn simpl_expr_to_template(expr: &SimplExpr) -> TemplateExpr {
     match expr {
         SimplExpr::Literal(DynVal(s, _)) => TemplateExpr::Literal(s.clone()),
         SimplExpr::VarRef(_, var) => TemplateExpr::Var(var.0.clone()),
-        SimplExpr::Concat(_, parts) => TemplateExpr::Concat(
-            parts.iter().map(simpl_expr_to_template).collect()
-        ),
+        SimplExpr::Concat(_, parts) => {
+            TemplateExpr::Concat(parts.iter().map(simpl_expr_to_template).collect())
+        }
         SimplExpr::IfElse(_, cond, if_true, if_false) => TemplateExpr::IfElse {
             condition: Box::new(simpl_expr_to_template(cond)),
             if_true: Box::new(simpl_expr_to_template(if_true)),
@@ -66,7 +66,7 @@ pub fn resolve_simpl_expr(
         Ok(DynVal(s, _)) => Property::String(s),
         Err(_) => {
             let var_refs = expr.collect_var_refs();
-            
+
             if var_refs.is_empty() {
                 return Property::String(format!("{}", expr));
             }
@@ -98,7 +98,11 @@ pub fn resolve_simpl_expr(
     }
 }
 
-pub fn resolve_as_bool(expr: &SimplExpr, args: &HashMap<String, WidgetArgs>, vars: &Vec<GlobalVar>) -> Property {
+pub fn resolve_as_bool(
+    expr: &SimplExpr,
+    args: &HashMap<String, WidgetArgs>,
+    vars: &Vec<GlobalVar>,
+) -> Property {
     match resolve_simpl_expr(expr, args, vars) {
         Property::String(s) => match s.as_str() {
             "true" => Property::Bool(true),
@@ -109,11 +113,13 @@ pub fn resolve_as_bool(expr: &SimplExpr, args: &HashMap<String, WidgetArgs>, var
     }
 }
 
-pub fn resolve_as_int(expr: &SimplExpr, args: &HashMap<String, WidgetArgs>, vars: &Vec<GlobalVar>) -> Property {
+pub fn resolve_as_int(
+    expr: &SimplExpr,
+    args: &HashMap<String, WidgetArgs>,
+    vars: &Vec<GlobalVar>,
+) -> Property {
     match resolve_simpl_expr(expr, args, vars) {
-        Property::String(s) => s.parse::<i64>()
-            .map(Property::Int)
-            .unwrap_or(Property::String(s)),
+        Property::String(s) => s.parse::<i64>().map(Property::Int).unwrap_or(Property::String(s)),
         other => other,
     }
 }

@@ -1,16 +1,16 @@
 use crate::convert::{ConvertContext, WidgetArgs};
+use crate::simplexpr::*;
 use ewwii_plugin_api::shared_utils::{
-    prop::{PropertyMap, Property}, 
     ast::WidgetNode,
+    prop::{Property, PropertyMap},
     variables::GlobalVar,
 };
+use heck::ToSnakeCase;
+use std::collections::HashMap;
 use yuck::config::attributes::Attributes;
-use yuck::config::widget_use::{WidgetUse, BasicWidgetUse};
+use yuck::config::widget_use::{BasicWidgetUse, WidgetUse};
 use yuck::config::window_definition::WindowDefinition;
 use yuck::parser::ast::Ast;
-use std::collections::HashMap;
-use heck::ToSnakeCase;
-use crate::simplexpr::*;
 
 const BOX_NAME: &str = "box";
 const LABEL_NAME: &str = "label";
@@ -35,17 +35,13 @@ const EVENTBOX_NAME: &str = "eventbox";
 const TOOLTIP_NAME: &str = "tooltip";
 
 pub fn widget_use_to_node(
-    widget_use: &WidgetUse, 
+    widget_use: &WidgetUse,
     ctx: &ConvertContext,
 ) -> Result<WidgetNode, String> {
     match widget_use {
         WidgetUse::Basic(basic) => basic_widget_to_node(basic, ctx),
-        WidgetUse::Loop(loop_use) => {
-            widget_use_to_node(&loop_use.body, ctx)
-        }
-        WidgetUse::Children(_) => {
-            Ok(WidgetNode::Tree(vec![]))
-        }
+        WidgetUse::Loop(loop_use) => widget_use_to_node(&loop_use.body, ctx),
+        WidgetUse::Children(_) => Ok(WidgetNode::Tree(vec![])),
     }
 }
 
@@ -54,7 +50,8 @@ fn basic_widget_to_node(
     ctx: &ConvertContext,
 ) -> Result<WidgetNode, String> {
     let props = extract_props(&basic.attrs, &ctx.args, &ctx.vars);
-    let children = basic.children
+    let children = basic
+        .children
         .iter()
         .map(|child| widget_use_to_node(child, ctx))
         .collect::<Result<Vec<_>, _>>()?;
@@ -85,7 +82,9 @@ fn basic_widget_to_node(
             if let Some(def) = ctx.defs.get(other) {
                 let new_ctx = ConvertContext {
                     defs: ctx.defs,
-                    args: basic.attrs.attrs
+                    args: basic
+                        .attrs
+                        .attrs
                         .iter()
                         .map(|(k, v)| {
                             let val = match &v.value {
@@ -96,22 +95,30 @@ fn basic_widget_to_node(
                                         Property::Int(i) => WidgetArgs::String(i.to_string()),
                                         Property::Float(f) => WidgetArgs::String(f.to_string()),
                                         Property::Bool(b) => WidgetArgs::String(b.to_string()),
-                                        _ => WidgetArgs::String(format!("{}", v.value).trim_matches('"').to_string()),
+                                        _ => WidgetArgs::String(
+                                            format!("{}", v.value).trim_matches('"').to_string(),
+                                        ),
                                     }
                                 }
                                 Ast::Symbol(_, s) => {
                                     if let Some(val) = ctx.args.get(s) {
                                         match val {
                                             WidgetArgs::String(s) => WidgetArgs::String(s.clone()),
-                                            WidgetArgs::GlobalVar(g) => WidgetArgs::GlobalVar(g.clone()),
+                                            WidgetArgs::GlobalVar(g) => {
+                                                WidgetArgs::GlobalVar(g.clone())
+                                            }
                                         }
-                                    } else if let Some(global) = ctx.vars.iter().find(|v| &v.name == s) {
+                                    } else if let Some(global) =
+                                        ctx.vars.iter().find(|v| &v.name == s)
+                                    {
                                         WidgetArgs::GlobalVar(global.clone())
                                     } else {
                                         WidgetArgs::String(s.clone())
                                     }
                                 }
-                                _ => WidgetArgs::String(format!("{}", v.value).trim_matches('"').to_string()),
+                                _ => WidgetArgs::String(
+                                    format!("{}", v.value).trim_matches('"').to_string(),
+                                ),
                             };
                             (k.0.clone(), val)
                         })
@@ -149,9 +156,7 @@ fn extract_props(
                     Property::String(s.clone())
                 }
             }
-            _ => Property::String(
-                format!("{}", attr.value).trim_matches('"').to_string()
-            ),
+            _ => Property::String(format!("{}", attr.value).trim_matches('"').to_string()),
         };
         let snake_key = key.0.to_snake_case();
         map.insert(snake_key, prop);

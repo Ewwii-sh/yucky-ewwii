@@ -1,18 +1,15 @@
+use crate::{errors, widgets};
+use ewwii_plugin_api::shared_utils::ast::WidgetNode;
+use ewwii_plugin_api::shared_utils::prop::{Property, PropertyMap};
+use ewwii_plugin_api::shared_utils::variables::GlobalVar;
+use std::collections::HashMap;
+use std::fs;
 use yuck::config::{
     TopLevel,
-    script_var_definition::{
-        ScriptVarDefinition, 
-        VarSource,
-    },
+    script_var_definition::{ScriptVarDefinition, VarSource},
     widget_definition::WidgetDefinition,
 };
 use yuck::parser::from_ast::FromAst;
-use ewwii_plugin_api::shared_utils::ast::WidgetNode;
-use ewwii_plugin_api::shared_utils::prop::{PropertyMap, Property};
-use ewwii_plugin_api::shared_utils::variables::GlobalVar;
-use std::collections::HashMap;
-use crate::{widgets, errors};
-use std::fs;
 
 #[derive(Debug)]
 pub enum WidgetArgs {
@@ -35,18 +32,19 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
     for top_level in top_levels {
         match top_level {
             TopLevel::Include(inc) => {
-                let source = fs::read_to_string(&inc.path)
-                    .expect("Should have been able to read the file");
+                let source =
+                    fs::read_to_string(&inc.path).expect("Should have been able to read the file");
 
                 match yuck::parser::parse_toplevel(0, source.clone()) {
                     Ok((_span, ast_nodes)) => {
                         let top_levels: Vec<TopLevel> = ast_nodes
                             .into_iter()
-                            .map(|ast| TopLevel::from_ast(ast)
-                            .map_err(|e| {
-                                errors::report_diag_error(&source, &inc.path, &e);
-                                e.to_string()
-                            }))
+                            .map(|ast| {
+                                TopLevel::from_ast(ast).map_err(|e| {
+                                    errors::report_diag_error(&source, &inc.path, &e);
+                                    e.to_string()
+                                })
+                            })
                             .collect::<Result<Vec<_>, _>>()?;
 
                         let result = convert_to_widgetnode(top_levels)?;
@@ -57,7 +55,7 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                     }
                     Err(e) => {
                         errors::report_parse_error(&source, &inc.path, &e);
-                        return Err(format!("Failed to parse yuck: {}", e))
+                        return Err(format!("Failed to parse yuck: {}", e));
                     }
                 }
             }
@@ -70,76 +68,64 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                 global_var_defs.push(global_var);
 
                 let mut props = PropertyMap::new();
-                props.insert(
-                    "cmd", 
-                    Property::String(format!("echo '{}'", var_def.initial_value.0))
-                );
+                props
+                    .insert("cmd", Property::String(format!("echo '{}'", var_def.initial_value.0)));
 
-                tree.push(WidgetNode::Listen {
-                    var: var_def.name.0,
-                    props,
-                });
+                tree.push(WidgetNode::Listen { var: var_def.name.0, props });
             }
-            TopLevel::ScriptVarDefinition(script_var_def) => {
-                match script_var_def {
-                    ScriptVarDefinition::Poll(poll) => {
-                        let mut props = PropertyMap::new();
+            TopLevel::ScriptVarDefinition(script_var_def) => match script_var_def {
+                ScriptVarDefinition::Poll(poll) => {
+                    let mut props = PropertyMap::new();
 
-                        let cmd = match &poll.command {
-                            VarSource::Shell(_, cmd_str) => Property::String(cmd_str.clone()),
-                            VarSource::Function(_) => {
-                                eprintln!("[yuck] Function-based poll '{}' is not supported, skipping cmd", poll.name);
-                                Property::None
-                            }
-                        };
+                    let cmd = match &poll.command {
+                        VarSource::Shell(_, cmd_str) => Property::String(cmd_str.clone()),
+                        VarSource::Function(_) => {
+                            eprintln!(
+                                "[yuck] Function-based poll '{}' is not supported, skipping cmd",
+                                poll.name
+                            );
+                            Property::None
+                        }
+                    };
 
-                        props.insert("cmd", cmd);
-                        props.insert("interval", Property::String(
-                            format!("{}ms", poll.interval.as_millis())
-                        ));
+                    props.insert("cmd", cmd);
+                    props.insert(
+                        "interval",
+                        Property::String(format!("{}ms", poll.interval.as_millis())),
+                    );
 
-                        let initial = match poll.initial_value {
-                            Some(i) => Property::String(i.to_string()),
-                            None => Property::String(String::new())
-                        };
+                    let initial = match poll.initial_value {
+                        Some(i) => Property::String(i.to_string()),
+                        None => Property::String(String::new()),
+                    };
 
-                        props.insert("initial", initial.clone());
+                    props.insert("initial", initial.clone());
 
-                        let global_var = GlobalVar {
-                            name: poll.name.to_string(),
-                            initial,
-                            template: None,
-                        };
+                    let global_var =
+                        GlobalVar { name: poll.name.to_string(), initial, template: None };
 
-                        tree.push(WidgetNode::Poll {
-                            var: poll.name.to_string(),
-                            props,
-                        });
+                    tree.push(WidgetNode::Poll { var: poll.name.to_string(), props });
 
-                        global_var_defs.push(global_var);
-                    }
-                    ScriptVarDefinition::Listen(listen) => {
-                        let mut props = PropertyMap::new();
-
-                        props.insert("cmd", Property::String(listen.command));
-                        let initial = listen.initial_value.0;
-                        props.insert("initial", Property::String(initial.clone()));
-
-                        let global_var = GlobalVar {
-                            name: listen.name.to_string(),
-                            initial: Property::String(initial),
-                            template: None,
-                        };
-
-                        tree.push(WidgetNode::Listen {
-                            var: listen.name.to_string(),
-                            props,
-                        });
-
-                        global_var_defs.push(global_var);
-                    }
+                    global_var_defs.push(global_var);
                 }
-            }
+                ScriptVarDefinition::Listen(listen) => {
+                    let mut props = PropertyMap::new();
+
+                    props.insert("cmd", Property::String(listen.command));
+                    let initial = listen.initial_value.0;
+                    props.insert("initial", Property::String(initial.clone()));
+
+                    let global_var = GlobalVar {
+                        name: listen.name.to_string(),
+                        initial: Property::String(initial),
+                        template: None,
+                    };
+
+                    tree.push(WidgetNode::Listen { var: listen.name.to_string(), props });
+
+                    global_var_defs.push(global_var);
+                }
+            },
             TopLevel::WidgetDefinition(widget_def) => {
                 widget_defs.insert(widget_def.name.clone(), widget_def);
             }
