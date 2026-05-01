@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Yucky Ewwii documentation</title>
-        <meta name="robots" content="noindex">
+        <title>Installation - Yucky Ewwii documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -186,9 +185,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="yucky-ewwii"><a class="header" href="#yucky-ewwii">Yucky Ewwii!</a></h1>
-<p>Yucky Ewwii is a ewwii plugin that brings the yuck configuration language from eww to ewwii. This plugin is designed for those who prefer lisp-like languages or for those who want to benifit from the features of ewwii without much effort in porting their eww configuration over.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="installing-yucky-ewwii"><a class="header" href="#installing-yucky-ewwii">Installing Yucky Ewwii</a></h1>
+                        <h1 id="installing-yucky-ewwii"><a class="header" href="#installing-yucky-ewwii">Installing Yucky Ewwii</a></h1>
 <p>To install and setup yucky-ewwii, go to the <a href="https://github.com/Ewwii-sh/yucky-ewwii/releases">releases page</a>, and grab the <code>libyucky_ewwii.so</code> file from the <strong>appropriate</strong> release. Choosing the appropriate release is easy. If you use ewwii v0.6.0, then you must download the file from the 0.6.0.x release. If you use the latest version of ewwii, then you can just download the file from latest release.</p>
 <p>Once you have the <code>libyucky_ewwii.so</code> file, go to the configuration directory and create a directory named <strong>"plugins"</strong>. And just move the <code>libyucky_ewwii.so</code> file in here.</p>
 <p><strong>That's it!</strong> ewwii will now automatically loading it!</p>
@@ -200,25 +197,18 @@ the <code>plugins/</code> directory.</p>
 <p>Additionally, <code>yucky-ewwii</code> and similar language plugins will disable <code>rhai</code> entirely.
 Meaning, configuration inside <code>ewwii.rhai</code> will be ignored.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="migrating-eww-configuration"><a class="header" href="#migrating-eww-configuration">Migrating Eww Configuration</a></h1>
-<p>Most of the configuration can be ported over directly. But the following should be kept in mind for it to work:</p>
-<h4 id="regarding-yuck"><a class="header" href="#regarding-yuck">Regarding yuck:</a></h4>
-<ul>
-<li>The <code>eww.(css/scss/yuck)</code> files should be renamed to <code>ewwii.(css/scss/yuck)</code>.</li>
-<li><strong>MAGIC VARIABLES LIKE 'EWW_CPU' ARE NOT PRESENT</strong>. So you would have to implement them manually using external scripts.</li>
-<li>Some widgets (like <code>center-box</code>) that are present in eww might be missing in ewwii, so it is recommended to refer to the widget name and properties defined in <a href="https://ewwii-sh.github.io/docs/widgets/props">ewwii_docs/widgets/props</a>.</li>
-</ul>
-<h4 id="regarding-styling"><a class="header" href="#regarding-styling">Regarding styling:</a></h4>
-<ul>
-<li>The <code>eventbox</code> widget in ewwii cannot be styled using <code>eventbox { styles }</code> in css/scss. To style them, adding a class is mandatory.</li>
-<li>Some styling might not work as ewwii uses GTK4 instead of GTK3, which eww uses. But most of the time, it will port over nicely.</li>
-</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
+                            <a rel="next prefetch" href="migration.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -226,7 +216,13 @@ Meaning, configuration inside <code>ewwii.rhai</code> will be ignored.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
+                    <a rel="next prefetch" href="migration.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
@@ -250,11 +246,6 @@ Meaning, configuration inside <code>ewwii.rhai</code> will be ignored.</p>
         <!-- Custom JS scripts -->
         <script src="js/home_button.js"></script>
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
 
     </div>
