@@ -17,7 +17,7 @@ Most of the configuration can be ported over directly. But the following should 
 - The `eventbox` widget in ewwii cannot be styled using `eventbox { styles }` in css/scss. To style them, adding a class is mandatory.
 - Some styling might not work as ewwii uses GTK4 instead of GTK3, which eww uses. But most of the time, it will port over nicely.
 
-## Versioning
+## Versioning Notice
 
 This project uses a custom versioning system instead of the standard [Semantic Versioning](https://semver.org/) to avoid confusion.
 
