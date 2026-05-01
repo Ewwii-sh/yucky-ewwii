@@ -10,7 +10,7 @@ use yuck::parser::from_ast::FromAst;
 auto_plugin!(MyPluginName, PluginInfo::new("ewwii.language.yuck", "0.1.0"), host, {
     host.log("Loading language: Yuck!");
     host.register_config_engine(
-        ConfigInfo { extension: "yuck", main_file: "main.yuck" },
+        ConfigInfo { extension: "yuck", main_file: "ewwii.yuck" },
         ParseFn::new(|source, path| match yuck::parser::parse_toplevel(0, source.to_string()) {
             Ok((_span, ast_nodes)) => {
                 let top_levels: Vec<TopLevel> = ast_nodes
