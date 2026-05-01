@@ -29,6 +29,17 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
     let mut global_var_defs: Vec<GlobalVar> = Vec::new();
     let mut widget_defs: HashMap<String, WidgetDefinition> = HashMap::new();
 
+    collect_top_levels(top_levels, &mut tree, &mut global_var_defs, &mut widget_defs)?;
+
+    Ok(WidgetNode::Tree(tree))
+}
+
+fn collect_top_levels(
+    top_levels: Vec<TopLevel>,
+    tree: &mut Vec<WidgetNode>,
+    global_var_defs: &mut Vec<GlobalVar>,
+    widget_defs: &mut HashMap<String, WidgetDefinition>,
+) -> Result<(), String> {
     for top_level in top_levels {
         match top_level {
             TopLevel::Include(inc) => {
@@ -47,11 +58,7 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
                             })
                             .collect::<Result<Vec<_>, _>>()?;
 
-                        let result = convert_to_widgetnode(top_levels)?;
-
-                        if let WidgetNode::Tree(nested_vec) = result {
-                            tree.extend(nested_vec);
-                        }
+                        collect_top_levels(top_levels, tree, global_var_defs, widget_defs)?;
                     }
                     Err(e) => {
                         errors::report_parse_error(&source, &inc.path, &e);
@@ -147,5 +154,5 @@ pub fn convert_to_widgetnode(top_levels: Vec<TopLevel>) -> Result<WidgetNode, St
         }
     }
 
-    Ok(WidgetNode::Tree(tree))
+    Ok(())
 }
