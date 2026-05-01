@@ -2,7 +2,7 @@
 
 This ewwii plugin provides native yuck support. It is useful for users migrating from eww or for users who prefer lisp-like languages in general.
 
-## Migrating eww configuration
+## Migrating Ewwii Configuration
 
 Most of the configuration can be ported over directly. But the following should be kept in mind for it to work:
 
