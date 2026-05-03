@@ -42,7 +42,17 @@ pub fn simpl_expr_to_template(expr: &SimplExpr) -> TemplateExpr {
             left: Box::new(simpl_expr_to_template(left)),
             right: Box::new(simpl_expr_to_template(right)),
         },
-        other => TemplateExpr::Literal(format!("{}", other)),
+        other => {
+            let s = format!("{}", other);
+            if let Some((var, key)) = parse_index_expr(&s) {
+                TemplateExpr::Index {
+                    expr: Box::new(TemplateExpr::Var(var)),
+                    key: Box::new(TemplateExpr::Literal(key)),
+                }
+            } else {
+                TemplateExpr::Literal(s)
+            }
+        }
     }
 }
 
@@ -122,4 +132,14 @@ pub fn resolve_as_int(
         Property::String(s) => s.parse::<i64>().map(Property::Int).unwrap_or(Property::String(s)),
         other => other,
     }
+}
+
+fn parse_index_expr(s: &str) -> Option<(String, String)> {
+    let s = s.trim();
+    let bracket = s.find('[')?;
+    if !s.ends_with(']') { return None; }
+    let var = s[..bracket].trim().to_string();
+    let key = s[bracket+1..s.len()-1].trim().trim_matches('"').to_string();
+    if var.is_empty() || key.is_empty() { return None; }
+    Some((var, key))
 }

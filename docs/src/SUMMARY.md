@@ -2,4 +2,5 @@
 
 - [Introduction](./introduction.md)
 - [Installation](./installation.md)
-- [Migration](./migration.md)
+- [Migration Guide](./migration.md)
+- [Additional Features](./additionals.md)

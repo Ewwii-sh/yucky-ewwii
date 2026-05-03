@@ -435,8 +435,6 @@ dependencies = [
 [[package]]
 name = "ewwii_plugin_api"
 version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5392c83d89cfddc32f9498d1e119e9c1399075951614ece458837955ed3c3c99"
 dependencies = [
  "bincode",
  "ewwii_shared_utils",
@@ -447,8 +445,6 @@ dependencies = [
 [[package]]
 name = "ewwii_shared_utils"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95575f0dde8954cce86e9a1b1ae87fd29bb7c9ff030f547f0fe3d8d44e5468cf"
 dependencies = [
  "ahash",
  "anyhow",
@@ -457,6 +453,7 @@ dependencies = [
  "regex",
  "rhai",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
