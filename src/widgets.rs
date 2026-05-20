@@ -214,6 +214,9 @@ pub fn window_def_to_props(window_def: &WindowDefinition, vars: &Vec<GlobalVar>)
     if let Some(expr) = &wl.namespace {
         props.insert("namespace".to_string(), resolve_simpl_expr(expr, &args, vars));
     }
+    if let Some(expr) = &wl.force_normal {
+        props.insert("force_normal".to_string(), resolve_as_bool(expr, &args, vars));
+    }
 
     // geometry
     if let Some(geo) = &window_def.geometry {
