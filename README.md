@@ -2,6 +2,21 @@
 
 This ewwii plugin provides native yuck support. It is useful for users migrating from eww or for users who prefer lisp-like languages in general.
 
+## Installation
+
+You can use the following command to install yucky ewwii using [eiipm](https://github.com/ewwii-sh/eiipm).
+
+```
+# if you prefer prebuilt
+eiipm add "Ewwii-sh/yucky-ewwii" --prebuilt --ref <version>
+
+# if you prefer building yourself
+eiipm add "Ewwii-sh/yucky-ewwii"                  # Up to date with "main" branch
+eiipm add "Ewwii-sh/yucky-ewwii" --ref <version>  # Locked to a specific version
+```
+
+Or you can download it manually from [Github Releases](https://github.com/ewwii-sh/yucky-ewwii/releases).
+
 ## Migrating Eww Configuration
 
 Most of the configuration can be ported over directly. But the following should be kept in mind for it to work:
