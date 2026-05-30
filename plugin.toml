@@ -1,5 +1,4 @@
 [plugin]
-name = "yucky-ewwii"
 build = "cargo build --release"
 artifact = "target/release/libyucky-ewwii.so"
 
