@@ -390,9 +390,9 @@ dependencies = [
 
 [[package]]
 name = "ewwii_plugin_api"
-version = "1.2.0"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c3dd6c82b3fc192ec2c02bfd5734f6a2a5fc01a1f3a37a3dbd2b7bd694de625"
+checksum = "3e62bf699ff431cc487c5ef783ebd3fcc419dbf04dc21542ec0b4a7739796dc2"
 dependencies = [
  "bincode",
  "ewwii_shared_utils",
@@ -402,9 +402,9 @@ dependencies = [
 
 [[package]]
 name = "ewwii_shared_utils"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11ac10fc457cebfe1c12fc5d95ebd715ea1bb6c2ed9a8c23b25423c988cd351f"
+checksum = "70808b0ae8abf04d4205812a28bbdffac3103973a8c11129a6532fbd8d8a6518"
 dependencies = [
  "ahash",
  "anyhow",
@@ -752,9 +752,9 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 
 [[package]]
 name = "nbcl"
-version = "0.4.6"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33c4d07a00836284464a405e158e43913e88de14ad33d4f75a07102e0fa95eb5"
+checksum = "489d15bb611da3159c12f495197a1cd9ca219584f4caaec336148ecb1c689f01"
 dependencies = [
  "pest",
  "pest_derive",
