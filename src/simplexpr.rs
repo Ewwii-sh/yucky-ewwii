@@ -91,6 +91,7 @@ pub fn resolve_simpl_expr(
                         name: global.name.clone(),
                         initial: global.initial.clone(),
                         template: None,
+                        mutation: None,
                     }))
                 } else {
                     Property::String(format!("{}", expr))
@@ -102,6 +103,7 @@ pub fn resolve_simpl_expr(
                     name: primary_var.clone(),
                     initial: global.map(|g| g.initial.clone()).unwrap_or(Property::None),
                     template: Some(template),
+                    mutation: None,
                 }))
             }
         }

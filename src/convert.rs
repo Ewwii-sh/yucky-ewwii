@@ -71,6 +71,7 @@ fn collect_top_levels(
                     name: var_def.name.0.clone(),
                     initial: Property::String(var_def.initial_value.0.clone()),
                     template: None,
+                    mutation: None,
                 };
                 global_var_defs.push(global_var);
 
@@ -109,7 +110,7 @@ fn collect_top_levels(
                     props.insert("initial", initial.clone());
 
                     let global_var =
-                        GlobalVar { name: poll.name.to_string(), initial, template: None };
+                        GlobalVar { name: poll.name.to_string(), initial, template: None, mutation: None };
 
                     tree.push(WidgetNode::Poll { var: poll.name.to_string(), props });
 
@@ -126,6 +127,7 @@ fn collect_top_levels(
                         name: listen.name.to_string(),
                         initial: Property::String(initial),
                         template: None,
+                        mutation: None,
                     };
 
                     tree.push(WidgetNode::Listen { var: listen.name.to_string(), props });

@@ -36,6 +36,7 @@ pub struct WindowDefinition {
     pub args_span: Span,
     pub geometry: Option<WindowGeometryDef>,
     pub stacking: Option<SimplExpr>,
+    pub waited_close: Option<SimplExpr>,
     pub monitor: Option<SimplExpr>,
     pub widget: WidgetUse,
     pub resizable: Option<SimplExpr>,
@@ -86,10 +87,11 @@ impl FromAstElementContent for WindowDefinition {
         let resizable = attrs.ast_optional("resizable")?;
         let stacking = attrs.ast_optional("stacking")?;
         let geometry = attrs.ast_optional("geometry")?;
+        let waited_close = attrs.ast_optional("waited_close")?;
         let backend_options = BackendWindowOptionsDef::from_attrs(&mut attrs)?;
         let widget = iter.expect_any().map_err(DiagError::from).and_then(WidgetUse::from_ast)?;
         iter.expect_done()?;
-        Ok(Self { name, expected_args, args_span, monitor, resizable, widget, stacking, geometry, backend_options })
+        Ok(Self { name, expected_args, args_span, monitor, resizable, widget, stacking, geometry, waited_close, backend_options })
     }
 }
 

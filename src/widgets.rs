@@ -33,6 +33,8 @@ const GRAPH_NAME: &str = "graph";
 const TRANSFORM_NAME: &str = "transform";
 const EVENTBOX_NAME: &str = "eventbox";
 const TOOLTIP_NAME: &str = "tooltip";
+const ANIMATION_ANME: &str = "animation";
+const CUSOTM_NAME: &str = "custom";
 
 pub fn widget_use_to_node(
     widget_use: &WidgetUse,
@@ -78,6 +80,8 @@ fn basic_widget_to_node(
         TRANSFORM_NAME => Ok(WidgetNode::Transform { props }),
         EVENTBOX_NAME => Ok(WidgetNode::EventBox { props, children }),
         TOOLTIP_NAME => Ok(WidgetNode::ToolTip { props, children }),
+        ANIMATION_ANME => Ok(WidgetNode::Animation { props, children }),
+        CUSOTM_NAME => Ok(WidgetNode::Custom { props, children }),
         other => {
             if let Some(def) = ctx.defs.get(other) {
                 let new_ctx = ConvertContext {
@@ -237,6 +241,11 @@ pub fn window_def_to_props(window_def: &WindowDefinition, vars: &Vec<GlobalVar>)
             geometry.insert("anchor".to_string(), resolve_simpl_expr(expr, &args, vars));
         }
         props.insert("geometry".to_string(), Property::Map(geometry));
+    }
+
+    // waited close 
+    if let Some(wc) = &window_def.waited_close {
+        props.insert("waited_close".to_string(), resolve_simpl_expr(wc, &args, vars));
     }
 
     props
