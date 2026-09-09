@@ -248,5 +248,10 @@ pub fn window_def_to_props(window_def: &WindowDefinition, vars: &Vec<GlobalVar>)
         props.insert("waited_close".to_string(), resolve_simpl_expr(wc, &args, vars));
     }
 
+    // passinput
+    if let Some(pi) = &window_def.passinput {
+        props.insert("passinput".to_string(), resolve_as_bool(pi, &args, vars));
+    }
+
     props
 }
