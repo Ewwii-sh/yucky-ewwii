@@ -2,6 +2,7 @@ mod convert;
 mod errors;
 mod simplexpr;
 mod widgets;
+mod magicvars;
 
 use ewwii_plugin_api::{ConfigInfo, ParseFn, ParseFnExt, PluginInfo, auto_plugin};
 use yuck::config::TopLevel;
@@ -9,6 +10,7 @@ use yuck::parser::from_ast::FromAst;
 
 auto_plugin!(MyPluginName, PluginInfo::new("ewwii.language.yuck", "0.1.0"), host, {
     host.log("Loading language: Yuck!");
+    magicvars::register_magic_variables(host.clone());
     host.register_config_engine(
         ConfigInfo { extension: "yuck", main_file: "ewwii.yuck" },
         ParseFn::new(|source, path| match yuck::parser::parse_toplevel(0, source.to_string()) {
@@ -22,7 +24,7 @@ auto_plugin!(MyPluginName, PluginInfo::new("ewwii.language.yuck", "0.1.0"), host
                         })
                     })
                     .collect::<Result<Vec<_>, _>>()?;
-
+                
                 let tree = convert::convert_to_widgetnode(top_levels)?;
                 Ok(tree)
             }

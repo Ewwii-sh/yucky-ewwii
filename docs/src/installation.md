@@ -12,5 +12,5 @@ Once you have the `libyucky_ewwii.so` file, go to the configuration directory an
 > Ensure that `yucky-ewwii` is the only language plugin that is present inside 
 > the `plugins/` directory.
 >
-> Additionally, `yucky-ewwii` and similar language plugins will disable `rhai` entirely. 
-> Meaning, configuration inside `ewwii.rhai` will be ignored.
+> Additionally, `yucky-ewwii` and similar language plugins will disable `nbcl` entirely. 
+> Meaning, configuration inside `ewwii.nbcl` will be ignored.
