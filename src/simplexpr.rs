@@ -9,10 +9,27 @@ use simplexpr::ast::{BinOp, SimplExpr};
 use simplexpr::dynval::DynVal;
 use std::collections::HashMap;
 
+fn alias_var_name(name: &str) -> String {
+    match name {
+        "EWW_TEMPS" => "EWWII_TEMPS",
+        "EWW_RAM" => "EWWII_RAM",
+        "EWW_DISK" => "EWWII_DISK",
+        "EWW_BATTERY" => "EWWII_BATTERY",
+        "EWW_CPU" => "EWWII_CPU",
+        "EWW_NET" => "EWWII_NET",
+        "EWW_TIME" => "EWWII_TIME",
+        "EWW_CONFIG_DIR" => "EWWII_CONFIG_DIR",
+        "EWW_CMD" => "EWWII_CMD",
+        "EWW_EXECUTABLE" => "EWWII_EXECUTABLE",
+        other => other,
+    }
+    .to_string()
+}
+
 pub fn simpl_expr_to_template(expr: &SimplExpr) -> TemplateExpr {
     match expr {
         SimplExpr::Literal(DynVal(s, _)) => TemplateExpr::Literal(s.clone()),
-        SimplExpr::VarRef(_, var) => TemplateExpr::Var(var.0.clone()),
+        SimplExpr::VarRef(_, var) => TemplateExpr::Var(alias_var_name(&var.0)),
         SimplExpr::Concat(_, parts) => {
             TemplateExpr::Concat(parts.iter().map(simpl_expr_to_template).collect())
         }
@@ -46,7 +63,7 @@ pub fn simpl_expr_to_template(expr: &SimplExpr) -> TemplateExpr {
             let s = format!("{}", other);
             if let Some((var, key)) = parse_index_expr(&s) {
                 TemplateExpr::Index {
-                    expr: Box::new(TemplateExpr::Var(var)),
+                    expr: Box::new(TemplateExpr::Var(alias_var_name(&var))),
                     key: Box::new(TemplateExpr::Literal(key)),
                 }
             } else {
