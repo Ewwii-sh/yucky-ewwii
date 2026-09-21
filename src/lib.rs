@@ -3,6 +3,7 @@ mod errors;
 mod simplexpr;
 mod widgets;
 mod magicvars;
+mod system_stats;
 
 use ewwii_plugin_api::{ConfigInfo, ParseFn, ParseFnExt, PluginInfo, auto_plugin};
 use yuck::config::TopLevel;
