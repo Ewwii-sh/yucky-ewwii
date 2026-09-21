@@ -13,6 +13,7 @@ use yuck::config::window_definition::WindowDefinition;
 use yuck::parser::ast::Ast;
 
 const BOX_NAME: &str = "box";
+const CENTERBOX_NAME: &str = "centerbox"; // DEPRECATED!
 const LABEL_NAME: &str = "label";
 const BUTTON_NAME: &str = "button";
 const IMAGE_NAME: &str = "image";
@@ -62,6 +63,10 @@ fn basic_widget_to_node(
         LABEL_NAME => Ok(WidgetNode::Label { props }),
         BUTTON_NAME => Ok(WidgetNode::Button { props }),
         BOX_NAME => Ok(WidgetNode::Box { props, children }),
+        CENTERBOX_NAME => {
+            eprintln!("[yucky-ewwii] 'centerbox' is a widget that is removed in ewwii. Using regular box instead.");
+            Ok(WidgetNode::Box { props, children })
+        }
         IMAGE_NAME => Ok(WidgetNode::Image { props }),
         INPUT_NAME => Ok(WidgetNode::Input { props }),
         PROGRESS_NAME => Ok(WidgetNode::Progress { props }),
