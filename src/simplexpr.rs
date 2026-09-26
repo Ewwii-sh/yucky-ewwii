@@ -65,6 +65,10 @@ pub fn simpl_expr_to_template(expr: &SimplExpr) -> TemplateExpr {
                 args: args.into_iter().map(simpl_expr_to_template).collect(),
             }
         }
+        SimplExpr::JsonAccess(_, _access_type, target, key) => TemplateExpr::Index {
+            expr: Box::new(simpl_expr_to_template(target)),
+            key: Box::new(simpl_expr_to_template(key)),
+        },
         other => {
             let s = format!("{}", other);
             if let Some((var, key)) = parse_index_expr(&s) {

@@ -7,10 +7,10 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-ewwii_plugin_api = "1.5.0"
+# ewwii_plugin_api = "1.5.0"
 
 # For testing:
-# ewwii_plugin_api = { path = "../ewwii/crates/plugin_api" }
+ewwii_plugin_api = { path = "../ewwii/crates/plugin_api" }
 
 yuck = { path = "third-party/eww/crates/yuck" }
 simplexpr = { path = "third-party/eww/crates/simplexpr" }
