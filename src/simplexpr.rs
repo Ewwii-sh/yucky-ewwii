@@ -59,6 +59,12 @@ pub fn simpl_expr_to_template(expr: &SimplExpr) -> TemplateExpr {
             left: Box::new(simpl_expr_to_template(left)),
             right: Box::new(simpl_expr_to_template(right)),
         },
+        SimplExpr::FunctionCall(_, function_name, args) => {
+            TemplateExpr::FunctionCall {
+                name: function_name.to_string(),
+                args: args.into_iter().map(simpl_expr_to_template).collect(),
+            }
+        }
         other => {
             let s = format!("{}", other);
             if let Some((var, key)) = parse_index_expr(&s) {

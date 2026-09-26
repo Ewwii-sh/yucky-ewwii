@@ -8,6 +8,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ewwii_plugin_api = "1.5.0"
+
+# For testing:
+# ewwii_plugin_api = { path = "../ewwii/crates/plugin_api" }
+
 yuck = { path = "third-party/eww/crates/yuck" }
 simplexpr = { path = "third-party/eww/crates/simplexpr" }
 eww_shared_util = { path = "third-party/eww/crates/eww_shared_util" }

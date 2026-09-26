@@ -416,8 +416,6 @@ dependencies = [
 [[package]]
 name = "ewwii_plugin_api"
 version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f4c99149c38c579d92bc1def59d460c0ff2b770abebf7f594ef9e880e68ebde"
 dependencies = [
  "bincode",
  "ewwii_shared_utils",
@@ -428,16 +426,22 @@ dependencies = [
 [[package]]
 name = "ewwii_shared_utils"
 version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b593fb947ea01ccdf559785c062a260ff5c7c8e9a57a856c7d640c2cedad3e1d"
 dependencies = [
  "ahash",
  "anyhow",
+ "cached",
+ "chrono",
+ "chrono-tz",
+ "jaq-core",
+ "jaq-interpret",
+ "jaq-parse",
+ "jaq-std",
  "log",
  "nbcl",
  "regex",
  "serde",
  "serde_json",
+ "widget_node_derive",
 ]
 
 [[package]]
@@ -777,9 +781,9 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 
 [[package]]
 name = "nbcl"
-version = "0.7.3"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db04825f56794f1f743f6839fbb43e30af261bf569373ee8fffa06e4df33a138"
+checksum = "2ac8caca991a63aeeb80d7c63fd5b1a67e8c8b1b724459c8a52e23170e3686c6"
 dependencies = [
  "pest",
  "pest_derive",
@@ -1528,6 +1532,15 @@ checksum = "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "widget_node_derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 3.0.6",
 ]
 
 [[package]]
